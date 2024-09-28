@@ -43,7 +43,8 @@ void app_main()
         // gpio_set_level(LED_PIN, 0);
         // vTaskDelay(pdMS_TO_TICKS(1000));
 
-        gpio_set_level(LED_PIN , !gpio_set_level(BUTTOM_PIN));
+        gpio_set_level(LED_PIN , !gpio_get_level(BUTTOM_PIN)); //si se pulsa el led se enciende
+        vTaskDelay(pdMS_TO_TICKS(100)); // espera para que no de error Task watchdog
     }
 
 }
