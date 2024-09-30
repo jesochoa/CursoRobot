@@ -37,7 +37,7 @@ void app_main()
     //Tema 5 configuro el TIMER lo llamo ledcTimer
     ledc_timer_config_t ledcTimer;
     ledcTimer.speed_mode = LEDC_LOW_SPEED_MODE;
-    ledcTimer.freq_hz =  1000; //Pruebo con 500Hz
+    ledcTimer.freq_hz =  500; //Pruebo con 500Hz
     ledcTimer.duty_resolution = LEDC_TIMER_13_BIT; //Pongo una resolución de 13Bits 
     ledcTimer.clk_cfg = LEDC_AUTO_CLK ; // Pongo automatico
     ledcTimer.timer_num = LEDC_TIMER_0; //Utilizo el primer Timer
@@ -45,7 +45,7 @@ void app_main()
 
     ledc_channel_config_t ledcChannel;
     ledcChannel.channel = LEDC_CHANNEL_0; //Elijo el canal 0
-    ledcChannel.gpio_num = GPIO_NUM_12;
+    ledcChannel.gpio_num = GPIO_NUM_22;
     ledcChannel.duty = 4096; //Como es 
     ledcChannel.timer_sel = LEDC_TIMER_0;
     ledcChannel.intr_type = LEDC_INTR_DISABLE;
@@ -53,7 +53,7 @@ void app_main()
     ledcChannel.flags.output_invert = 0; //Pongo 0 para que no me invierta la señal
     ledc_channel_config(&ledcChannel);
 
-
+    uint32_t cnt = 0;
 
     // Loop
     while(1)
@@ -69,7 +69,16 @@ void app_main()
         // vTaskDelay(pdMS_TO_TICKS(1000));
 
         gpio_set_level(LED_PIN , !gpio_get_level(BUTTON_PIN)); //si se pulsa el led se enciende
+        
         vTaskDelay(pdMS_TO_TICKS(10)); // espera para que no de error Task watchdog
+
+        ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, cnt++);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0);
+
+        if (cnt > 8192)
+        {
+            cnt = 0;
+        }
     }
 
 }
