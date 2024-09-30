@@ -15,6 +15,7 @@ extern "C" void app_main();
 void app_main() 
 {
     // Setup
+    
     gpio_config_t config;
     config.mode = GPIO_MODE_OUTPUT; // Lo declaro como salida
     config.pin_bit_mask = (1<<LED_PIN); // Desplazo 2 posiciones el 1
@@ -22,20 +23,22 @@ void app_main()
     config.pull_down_en = GPIO_PULLDOWN_DISABLE;
     config.pull_up_en = GPIO_PULLUP_DISABLE;
     gpio_config(&config); //Grabo la configuracion
-
-    //
+    
+    
     // Init GPIO_13 como INPUT
+    
     config.mode = GPIO_MODE_INPUT; //LO DECLARO COMO ENTRADA
     config.pin_bit_mask = (1<<BUTTON_PIN); //Corro el 1 13 posiciones
-    /*
-    config.intr_type = GPIO_INTR_DISABLE; // no hace falta ponerla ya que esta igual al LED
-    config.pull_down_en = GPIO_PULLDOWN_DISABLE; // no hace falta ponerla ya que esta igual al LED
-    */
+    
+    //config.intr_type = GPIO_INTR_DISABLE; // no hace falta ponerla ya que esta igual al LED
+    //config.pull_down_en = GPIO_PULLDOWN_DISABLE; // no hace falta ponerla ya que esta igual al LED
+    
     config.pull_up_en = GPIO_PULLUP_ENABLE; // Activo la resistencia PULLUP
     gpio_config(&config); // Grabo la configuración del pulsador
     
+
     //Tema 5 configuro el TIMER lo llamo ledcTimer
-    ledc_timer_config_t ledcTimer;
+    ledc_timer_config_t ledcTimer = {}; //Hasta que no he puesto los corchetes no me ha funcionado
     ledcTimer.speed_mode = LEDC_LOW_SPEED_MODE;
     ledcTimer.freq_hz =  500; //Pruebo con 500Hz
     ledcTimer.duty_resolution = LEDC_TIMER_13_BIT; //Pongo una resolución de 13Bits 
@@ -43,10 +46,10 @@ void app_main()
     ledcTimer.timer_num = LEDC_TIMER_0; //Utilizo el primer Timer
     ledc_timer_config(&ledcTimer); //Mando la configuración
 
-    ledc_channel_config_t ledcChannel;
+    ledc_channel_config_t ledcChannel = {};
     ledcChannel.channel = LEDC_CHANNEL_0; //Elijo el canal 0
     ledcChannel.gpio_num = GPIO_NUM_22;
-    ledcChannel.duty = 4096; //Como es 
+    ledcChannel.duty = 4096; //Lo dejo 50%
     ledcChannel.timer_sel = LEDC_TIMER_0;
     ledcChannel.intr_type = LEDC_INTR_DISABLE;
     ledcChannel.speed_mode = LEDC_LOW_SPEED_MODE;
