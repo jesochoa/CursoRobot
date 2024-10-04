@@ -1,8 +1,9 @@
 
+#include <stdio.h>
 #include <freertos/FreeRTOS.h> //Siempre se pone la primera si no da error
 #include <freertos/task.h>
 #include <driver/gpio.h>
-#include <stdio.h>
+
 
 // Tema 7 controlador pwm con ledc
 #include <driver/ledc.h>
@@ -77,23 +78,19 @@ void app_main()
         
         
 
-        if (!gpio_get_level(BUTTON_PIN))
+        if (gpio_get_level(BUTTON_PIN))
         {
-            while (!gpio_get_level(BUTTON_PIN)){vTaskDelay(pdMS_TO_TICKS(10));} //para arreglar el rebote de pulsador
+            while (gpio_get_level(BUTTON_PIN)){vTaskDelay(pdMS_TO_TICKS(10));} //para arreglar el rebote de pulsador
             
             cnt++;
-                       
-            if (cnt > 4)
-            {
-            cnt = 0; // Pone a 0 el contador
-            }
+            printf("Vale el contador cnt = %ld \n", cnt);
         }
 
         if (cnt == 0)
         {
             ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 0);
             ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0); 
-            printf("Contador ");
+            
         }
 
         if (cnt == 1)
@@ -120,10 +117,12 @@ void app_main()
             {
                 ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, cnt_1++);
                 ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0);
-                //vTaskDelay(pdMS_TO_TICKS(10)); 
+                vTaskDelay(pdMS_TO_TICKS(1)); 
+                printf("Vale el contador cnt = %ld \n", cnt_1);
             }
             cnt_1 = 0;
             cnt = 0 ;
+            printf("Pone a cero el contador \n");
         }
             
             
