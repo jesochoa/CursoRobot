@@ -43,7 +43,7 @@ void app_main()
     ledc_timer_config_t ledcTimer = {}; //Hasta que no he puesto los corchetes no me ha funcionado
     ledcTimer.speed_mode = LEDC_LOW_SPEED_MODE;
     ledcTimer.freq_hz =  500; //Pruebo con 500Hz
-    ledcTimer.duty_resolution = LEDC_TIMER_13_BIT; //Pongo una resolución de 13Bits 
+    ledcTimer.duty_resolution = LEDC_TIMER_10_BIT; //Pongo una resolución de 10Bits 
     ledcTimer.clk_cfg = LEDC_AUTO_CLK ; // Pongo automatico
     ledcTimer.timer_num = LEDC_TIMER_0; //Utilizo el primer Timer
     ledc_timer_config(&ledcTimer); //Mando la configuración
@@ -61,10 +61,15 @@ void app_main()
     uint32_t cnt = 0;
     uint32_t cnt_1 = 0 ;
 
+    printf("PREPARADOS \n");
+    printf("el pulsador vale = %d \n", gpio_get_level(BUTTON_PIN));
+    vTaskDelay(pdMS_TO_TICKS(2000)); // ESPERA 2 SEGUNDOS
+    printf("El contador cnt = %ld \n", cnt);
+    printf("EMPIEZA EL PROGRAMA \n");
+
     // Loop
     while(1)
     {   
-
         // Set LED_PIN to INPUT value.
         // If INPUT == 1 then LED_PIN = 1
         // If INPUT == 0 then LED_PIN = 0
@@ -76,62 +81,56 @@ void app_main()
 
         // gpio_set_level(LED_PIN , !gpio_get_level(BUTTON_PIN)); //si se pulsa el led se enciende
         
-        
-
-        if (gpio_get_level(BUTTON_PIN))
+        if (!gpio_get_level(BUTTON_PIN))
         {
-            while (gpio_get_level(BUTTON_PIN)){vTaskDelay(pdMS_TO_TICKS(10));} //para arreglar el rebote de pulsador
+            while (!gpio_get_level(BUTTON_PIN)){vTaskDelay(pdMS_TO_TICKS(10));} //para arreglar el rebote de pulsador
             
             cnt++;
             printf("Vale el contador cnt = %ld \n", cnt);
         }
 
-        if (cnt == 0)
+        vTaskDelay(pdMS_TO_TICKS(10)); // espera para que no de error Task watchdog
+
+        switch (cnt)
         {
+        case 0 :
             ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 0);
             ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0); 
-            
-        }
+            break;
 
-        if (cnt == 1)
-        {
-            ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 8192);
-            ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0); 
-        }
+        case 1 :
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 1024);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0);
+            break;
 
-        if (cnt == 2)
-        {
-            ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 4096);
+        case 2 :
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 512);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0);
+            break;
+
+        case 3 :
+            ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 100);
             ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0); 
-        }
+            break;
         
-        if (cnt == 3)
-        {
-            ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, 1000);
-            ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0); 
-        }
-
-        if (cnt == 4)
-        {
-            while (cnt_1 < 8192)
+        case 4 :
+            while (cnt_1 < 1024)
             {
+                vTaskDelay(pdMS_TO_TICKS(10)); // menos de 10 va super rapido
                 ledc_set_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0, cnt_1++);
+                cnt_1 = cnt_1+4; //para que valla mas rapido el LED
                 ledc_update_duty(LEDC_LOW_SPEED_MODE,LEDC_CHANNEL_0);
-                vTaskDelay(pdMS_TO_TICKS(1)); 
-                printf("Vale el contador cnt = %ld \n", cnt_1);
             }
+
             cnt_1 = 0;
             cnt = 0 ;
+
             printf("Pone a cero el contador \n");
+            printf(" cnt vale = %ld \n", cnt);
+            break;
+
+        default:
+            break;
         }
-            
-            
-
-        
-        
-        vTaskDelay(pdMS_TO_TICKS(10)); // espera para que no de error Task watchdog
-        
-
     }
-
 }
